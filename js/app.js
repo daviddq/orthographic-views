@@ -7,7 +7,7 @@
   const MODES = ['libre', 'construir', 'identificar', 'dibujar'];
   const EDITABLE = { libre: true, construir: true };
   const VIEW_PHRASE = { alzado: 'el ALZADO', planta: 'la PLANTA', perfil: 'el PERFIL IZQUIERDO' };
-  const STORE_KEY = 'vistas-diedricas.figuras';
+  const STORE_KEY = 'orthographic-views.figuras';
 
   const state = {
     mode: 'libre',
