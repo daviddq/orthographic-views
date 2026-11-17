@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vistas diédricas · 1º ESO</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body data-mode="libre">
+  <header class="topbar">
+    <div class="brand">Vistas diédricas <span>1º ESO</span></div>
+    <nav class="modes" id="modes">
+      <button data-mode="libre" class="active">Editor libre</button>
+      <button data-mode="construir">Vistas → Pieza</button>
+      <button data-mode="identificar">Identificar vista</button>
+      <button data-mode="dibujar">Dibujar vistas</button>
+    </nav>
+  </header>
+
+  <main class="layout">
+    <!-- ================= 3D ================= -->
+    <section class="stage">
+      <div id="viewport" class="viewport"></div>
+
+      <div class="toolbar tb-edit" data-show="libre construir">
+        <div class="seg" id="tool-mode">
+          <button data-tool="add" class="active" title="Añadir bloques">＋ Añadir</button>
+          <button data-tool="remove" title="Quitar bloques">− Quitar</button>
+        </div>
+        <button id="btn-undo" title="Deshacer (Ctrl+Z)">↶</button>
+        <button id="btn-redo" title="Rehacer (Ctrl+Y)">↷</button>
+        <button id="btn-clear" title="Vaciar la rejilla">Vaciar</button>
+        <span class="count" id="block-count"></span>
+      </div>
+
+      <div class="toolbar tb-cam">
+        <button data-cam="iso" title="Vista en perspectiva">Iso</button>
+        <button data-cam="frente" title="Mirar desde el frente (alzado)">Frente</button>
+        <button data-cam="arriba" title="Mirar desde arriba (planta)">Arriba</button>
+        <button data-cam="izquierda" title="Mirar desde la izquierda (perfil)">Izq.</button>
+        <label class="chk" title="Cámara ortográfica: sin deformación de perspectiva"><input type="checkbox" id="opt-ortho"> Orto</label>
+        <label class="chk xray-toggle" title="Caras translúcidas: deja ver las aristas de detrás con línea discontinua"><input type="checkbox" id="opt-xray"> Rayos X</label>
+      </div>
+
+      <div class="xray-note" id="xray-note">
+        <div><svg viewBox="0 0 40 10"><line x1="2" y1="5" x2="38" y2="5" class="ln-v"/></svg> Arista vista desde aquí</div>
+        <div><svg viewBox="0 0 40 10"><line x1="2" y1="5" x2="38" y2="5" class="ln-h" stroke-dasharray="6 3.6"/></svg> Arista oculta → discontinua</div>
+        <p>Pulsa <b>Frente</b>, <b>Arriba</b> o <b>Izq.</b> con <b>Orto</b> para ver cada vista tal como se dibuja.</p>
+      </div>
+
+      <details class="toggles">
+        <summary>Opciones 3D</summary>
+        <label class="chk"><input type="checkbox" id="opt-dirs" checked> Direcciones de observación</label>
+        <label class="chk"><input type="checkbox" id="opt-color"> Colorear caras según la vista</label>
+        <label class="chk"><input type="checkbox" id="opt-blocks" checked> Separación entre bloques</label>
+      </details>
+
+      <div class="hint" id="hint"></div>
+    </section>
+
+    <!-- ================= Panel lateral ================= -->
+    <section class="side">
+
+      <!-- Editor libre -->
+      <div class="card" data-show="libre">
+        <h2>Vistas</h2>
+        <div id="views-libre"></div>
+      </div>
+
+      <!-- Ejercicio: vistas -> pieza -->
+      <div class="card" data-show="construir">
+        <h2>Construye la pieza que tiene estas vistas</h2>
+        <p class="muted">Puede haber varias piezas válidas: se comprueba que las tres vistas coincidan.</p>
+        <div id="views-target"></div>
+        <div class="actions">
+          <button class="primary" id="build-check">Comprobar</button>
+          <button id="build-solution">Ver solución</button>
+          <label class="chk"><input type="checkbox" id="build-mine"> Ver las vistas de mi pieza</label>
+        </div>
+        <div class="feedback" id="build-feedback"></div>
+        <div id="views-mine" class="mine"></div>
+      </div>
+
+      <!-- Ejercicio: identificar vista -->
+      <div class="card" data-show="identificar">
+        <h2 id="id-question">¿Cuál es la vista correcta?</h2>
+        <div class="options" id="id-options"></div>
+        <div class="feedback" id="id-feedback"></div>
+        <div class="actions">
+          <button class="primary" id="id-next">Siguiente</button>
+          <span class="score" id="id-score"></span>
+        </div>
+      </div>
+
+      <!-- Ejercicio: dibujar vistas -->
+      <div class="card" data-show="dibujar">
+        <h2>Dibuja las vistas de la pieza</h2>
+        <div class="draw-tools">
+          <span class="muted">Trazo:</span>
+          <div class="seg" id="draw-tool">
+            <button data-t="v" class="active"><svg viewBox="0 0 40 10"><line x1="2" y1="5" x2="38" y2="5" class="ln-v"/></svg> Continua</button>
+            <button data-t="h"><svg viewBox="0 0 40 10"><line x1="2" y1="5" x2="38" y2="5" class="ln-h" stroke-dasharray="6 3.6"/></svg> Discontinua</button>
+            <button data-t="x">Borrar</button>
+          </div>
+        </div>
+        <p class="muted">Toca cada tramo de la cuadrícula para trazarlo. Tocar un tramo con el mismo trazo lo borra.</p>
+        <div id="views-draw"></div>
+        <div class="actions">
+          <button class="primary" id="draw-check">Comprobar</button>
+          <button id="draw-solution">Ver solución</button>
+          <button id="draw-clear">Borrar dibujo</button>
+        </div>
+        <div class="feedback" id="draw-feedback"></div>
+      </div>
+
+      <!-- Origen de la pieza en los ejercicios -->
+      <div class="card" data-show="construir identificar dibujar">
+        <h2>Pieza del ejercicio</h2>
+        <div class="row">
+          <label>Dificultad
+            <select id="ex-level">
+              <option value="facil">Fácil</option>
+              <option value="media" selected>Media</option>
+              <option value="dificil">Difícil (con ocultas)</option>
+            </select>
+          </label>
+          <button class="primary" id="ex-new">Nueva pieza</button>
+        </div>
+        <div class="row">
+          <button id="ex-from-editor" title="Usar la figura construida en el editor libre">Usar la figura del editor</button>
+          <select id="ex-example"><option value="">Ejemplo…</option></select>
+        </div>
+        <div class="row">
+          <input id="ex-code" placeholder="Código" maxlength="6" size="8" autocomplete="off" spellcheck="false">
+          <button id="ex-load-code">Cargar código</button>
+          <button id="ex-copy-link" title="Copiar un enlace a este ejercicio">Copiar enlace</button>
+        </div>
+      </div>
+
+      <!-- Editor por capas -->
+      <div class="card" data-show="libre construir">
+        <h2>Capas <span class="muted small">(vistas desde arriba, frente abajo)</span></h2>
+        <div class="layers" id="layers"></div>
+      </div>
+
+      <!-- Ejemplos -->
+      <div class="card" data-show="libre">
+        <h2>Figuras de ejemplo</h2>
+        <div class="chips" id="examples"></div>
+        <div class="row"><button id="btn-random">Figura aleatoria</button></div>
+      </div>
+
+      <!-- Guardar / compartir -->
+      <div class="card" data-show="libre">
+        <h2>Guardar y compartir</h2>
+        <div class="row">
+          <label>Código <input id="code" maxlength="6" size="8" autocomplete="off" spellcheck="false"></label>
+          <button id="btn-load-code">Cargar</button>
+          <button id="btn-copy-link">Copiar enlace</button>
+        </div>
+        <div class="row">
+          <input id="save-name" placeholder="Nombre de la figura" maxlength="40">
+          <button id="btn-save">Guardar</button>
+        </div>
+        <ul class="saved" id="saved"></ul>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/lib/three.min.js"></script>
+  <script src="js/lib/OrbitControls.js"></script>
+  <script src="js/voxels.js"></script>
+  <script src="js/scene3d.js"></script>
+  <script src="js/views-svg.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

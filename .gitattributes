@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+
+# Three.js copiado en local: no cuenta en las estadísticas de lenguaje de GitHub
+js/lib/** linguist-vendored -diff
